@@ -7,6 +7,7 @@ import (
 )
 
 func NewUser(req *CreateUserRequest) *User {
+	req.PasswordCrypto()
 	return &User{
 		common.NewMetaData(),
 		req,
@@ -23,6 +24,6 @@ func (u *User) String() string {
 	return string(b)
 }
 
-func (u *User)TableName() string {
+func (u *User) TableName() string {
 	return "users"
 }

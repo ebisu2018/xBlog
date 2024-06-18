@@ -12,10 +12,10 @@ import (
 
 var (
 	userImpl = impl.NewUserServiceImpl()
-	ctx = context.Background()
+	ctx      = context.Background()
 )
 
-func init()  {
+func init() {
 	config.LoadFromTomlFile()
 }
 
@@ -30,7 +30,7 @@ func TestCreateUser(t *testing.T) {
 	t.Log(ins)
 }
 
-func TestDeleteUser(t *testing.T)  {
+func TestDeleteUser(t *testing.T) {
 	req := user.NewDeleteUserRequest(1)
 	err := userImpl.DeleteUser(ctx, req)
 	if err != nil {
@@ -38,9 +38,9 @@ func TestDeleteUser(t *testing.T)  {
 	}
 }
 
-func TestQueryUserById(t *testing.T)  {
-	
-	req := user.NewQueryRequestId(common.ParseInt(2))
+func TestQueryUserById(t *testing.T) {
+
+	req := user.NewQueryRequestId(common.ParseInt(5))
 	ins, err := userImpl.QueryUser(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -48,8 +48,8 @@ func TestQueryUserById(t *testing.T)  {
 	t.Log(ins)
 }
 
-func TestQueryUserByName(t *testing.T)  {
-	req := user.NewQueryRequestName("testuser")
+func TestQueryUserByName(t *testing.T) {
+	req := user.NewQueryRequestName("test")
 	ins, err := userImpl.QueryUser(ctx, req)
 	if err != nil {
 		t.Fatal(err)

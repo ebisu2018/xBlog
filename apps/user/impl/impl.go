@@ -6,6 +6,8 @@ import (
 	"github.com/ebisu2018/xBlog/apps/user"
 	"github.com/ebisu2018/xBlog/common"
 	"github.com/ebisu2018/xBlog/config"
+	"github.com/ebisu2018/xBlog/exception"
+	"gorm.io/gorm"
 )
 
 
@@ -45,7 +47,9 @@ func (i *UserServiceImpl)DeleteUser(ctx context.Context, req *user.DeleteUserReq
 
 	ins, err := i.QueryUser(ctx, user.NewQueryRequestId(common.ParseInt(req.Id)))
 	if err != nil {
-		return err
+		if err == gorm.ErrRecordNotFound {
+			return exception.NewRecordNotFound("user not found")
+		}
 	}
 	return i.cfg.MySql.GetConn().WithContext(ctx).Where("id = ?", req.Id).Delete(ins).Error
 }
@@ -63,7 +67,9 @@ func (i *UserServiceImpl)QueryUser(ctx context.Context, req *user.QueryRequest) 
 	ins := user.NewUser(user.NewCreateUserRequest())
 	err := query.First(ins).Error
 	if err != nil {
-		return nil, err
+		if err == gorm.ErrRecordNotFound {
+			return nil, exception.NewRecordNotFound("user not found")
+		}
 	}
 	return ins, nil
 }

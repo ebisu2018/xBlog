@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -23,13 +25,27 @@ type CreateUserRequest struct {
 	Password string            `json:"password"`
 	Role     Role              `json:"role"`
 	Label    map[string]string `json:"label" gorm:"serializer:json"`
+	isHashed bool
 }
 
-func (req *CreateUserRequest)ValidateAccount() error {
+func (req *CreateUserRequest) ValidateAccount() error {
 	if req.UserName == "" || req.Password == "" {
 		return fmt.Errorf("username or password invalid")
 	}
 	return nil
+}
+
+func (req *CreateUserRequest) PasswordCrypto() {
+	if req.isHashed {
+		return
+	}
+	cryptoPass, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	req.Password = string(cryptoPass)
+	req.setHashed()
+}
+
+func (req *CreateUserRequest) setHashed() {
+	req.isHashed = true
 }
 
 func NewDeleteUserRequest(id int) *DeleteUserRequest {
@@ -44,19 +60,19 @@ type DeleteUserRequest struct {
 
 func NewQueryRequestId(value string) *QueryRequest {
 	return &QueryRequest{
-		QueryBy: QueryById,
+		QueryBy:    QueryById,
 		QueryValue: value,
 	}
 }
 
 func NewQueryRequestName(value string) *QueryRequest {
 	return &QueryRequest{
-		QueryBy: QueryByName,
+		QueryBy:    QueryByName,
 		QueryValue: value,
 	}
 }
 
 type QueryRequest struct {
-	QueryBy QueryBy
+	QueryBy    QueryBy
 	QueryValue string
 }
