@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/ebisu2018/xBlog/common"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func NewUser(req *CreateUserRequest) *User {
@@ -26,4 +27,12 @@ func (u *User) String() string {
 
 func (u *User) TableName() string {
 	return "users"
+}
+
+func (u *User)CryptoCheck(password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	if err != nil {
+		return err
+	}
+	return nil
 }

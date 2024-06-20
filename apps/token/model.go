@@ -2,8 +2,8 @@ package token
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
-
 	"github.com/rs/xid"
 )
 
@@ -19,7 +19,7 @@ func NewToken() *Token {
 }
 
 type Token struct {
-	UserId                int    `json:"id"`
+	UserId                int    `json:"id" gorm:"column:user_id"`
 	UserName              string `json:"username"`
 	CreatedAt             int64  `json:"created_at"`
 	UpdatedAt             int64  `json:"updated_at"`
@@ -36,4 +36,21 @@ func (t *Token) String() string {
 
 func (t *Token)TableName() string {
 	return "tokens"
+}
+
+
+func (t *Token)expiredTime() time.Time {
+	expiredTime := time.Unix(t.CreatedAt, 0).Add(time.Duration(t.AccessTokenExpiredAt) * time.Second)
+	fmt.Printf("expired Time is %v\n", expiredTime)
+	return expiredTime
+}
+
+
+func (t *Token)IsExpired() error {
+	timeout := time.Since(t.expiredTime()).Seconds()
+	fmt.Printf("timeout for %v seconds\n", timeout)
+	if timeout > 0 {
+		return fmt.Errorf(" timeout %v seconds", timeout)
+	}
+	return nil
 }

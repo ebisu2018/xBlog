@@ -38,7 +38,6 @@ func (i *UserServiceImpl)CreateUser(ctx context.Context, req *user.CreateUserReq
 	if err != nil {
 		return nil, err
 	}
-	i.cfg.MySql.GetConn().WithContext(ctx).Save(ins)
 	return ins, nil
 }
 

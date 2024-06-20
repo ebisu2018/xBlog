@@ -22,7 +22,7 @@ func init() {
 func TestCreateUser(t *testing.T) {
 	req := user.NewCreateUserRequest()
 	req.UserName = "testuser"
-	req.Password = "123456"
+	req.Password = "12345"
 	ins, err := userImpl.CreateUser(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +49,7 @@ func TestQueryUserById(t *testing.T) {
 }
 
 func TestQueryUserByName(t *testing.T) {
-	req := user.NewQueryRequestName("test")
+	req := user.NewQueryRequestName("testuser")
 	ins, err := userImpl.QueryUser(ctx, req)
 	if err != nil {
 		t.Fatal(err)
