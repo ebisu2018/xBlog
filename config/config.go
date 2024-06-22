@@ -18,11 +18,16 @@ func DefaultConfig() *Config {
 			Password: "",
 			Database: "",
 		},
+		HttpApi: &HttpApi{
+			Host: "127.0.0.1",
+			Port: 8080,
+		},
 	}
 }
 
 type Config struct {
 	*MySql `json:"mysql" toml:"mysql"`
+	*HttpApi `json:"httpapi" toml:"http"`
 }
 
 type MySql struct {
@@ -61,4 +66,15 @@ func (m *MySql) GetConn() *gorm.DB {
 func (c *Config) String() string {
 	data, _ := json.Marshal(c)
 	return string(data)
+}
+
+
+type HttpApi struct {
+	Host string `json:"host"`
+	Port int `json:"port"`
+}
+
+
+func (h *HttpApi)HttpEndpoint() string {
+	return fmt.Sprintf("%v:%v", h.Host, h.Port)
 }
