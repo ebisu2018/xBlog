@@ -1,7 +1,6 @@
 package ioc
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +17,6 @@ func (c *Ioc) Get(name string) any {
 }
 
 func (c *Ioc) InitObj() {
-	fmt.Println(c.container)
 	for _, obj := range c.container {
 		obj.Init()
 	}
@@ -28,7 +26,7 @@ func (c *Ioc) InitObj() {
 func (c *Ioc) RouterRegistry(r gin.IRouter)  {
 	for _, obj := range c.container {
 		if api, ok := obj.(GinInf); ok {
-			api.Registry(r)
+			api.Register(r)
 		}
 	}
 }

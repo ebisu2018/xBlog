@@ -19,10 +19,10 @@ func nonIocVersion()  {
 	userSvc := impl.NewUserServiceImpl()
 	tkSvc := tokenImpl.NewTokenServiceImpl(userSvc)
 	apiHandler := api.NewHttpApiHander(tkSvc)
+	httpAddr := config.ReadConfig().HttpApi.HttpEndpoint()
 	
 	client := gin.Default()
 	apiHandler.Register(client.Group(fmt.Sprintf("%v", common.API)))
-	httpAddr := config.ReadConfig().HttpApi.HttpEndpoint()
 	fmt.Printf("HTTP API Addr: %v", httpAddr)
 	fmt.Println(client.Run(httpAddr))
 }
@@ -34,13 +34,13 @@ func iocVersion() {
 
 	client := gin.Default()
 	ioc.ApiHandler().RouterRegistry(client.Group(fmt.Sprintf("%v", common.API)))
+
 	httpAddr := config.ReadConfig().HttpApi.HttpEndpoint()
 	fmt.Printf("HTTP API Addr: %v", httpAddr)
 	fmt.Println(client.Run(httpAddr))
 }
 
 func main() {
-
 	err := config.LoadFromTomlFile()
 	if err != nil {
 		fmt.Println(err)

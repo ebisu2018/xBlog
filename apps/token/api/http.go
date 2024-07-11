@@ -18,6 +18,8 @@ gin.context是结构体，封装了http的request和response
 */
 
 import (
+	"fmt"
+
 	"github.com/ebisu2018/xBlog/apps/token"
 	"github.com/ebisu2018/xBlog/common"
 	"github.com/ebisu2018/xBlog/ioc"
@@ -26,6 +28,7 @@ import (
 
 
 func init()  {
+	fmt.Println("loading api package")
 	ioc.ApiHandler().Registry(&HttpApiHandler{})
 }
 
@@ -54,7 +57,7 @@ type HttpApiHandler struct {
 func (a *HttpApiHandler) Register(r gin.IRouter) {
 	v1 := r.Group("v1")
 	v1.POST("/tokens", a.ApiLogin)
-	v1.DELETE("/tokens", a.ApiLogout)
+	// v1.DELETE("/tokens", a.ApiLogout)
 }
 
 func (a *HttpApiHandler) ApiLogin(c *gin.Context) {
@@ -63,7 +66,6 @@ func (a *HttpApiHandler) ApiLogin(c *gin.Context) {
 
 	// 1. 相当于json.Unmarshal，body数据转换到对象上
 	err := c.BindJSON(req)
-	// fmt.Println(req)
 	if err != nil {
 		common.Failed(c, err)
 		return

@@ -8,5 +8,5 @@ type IocInf interface {
 }
 
 type GinInf interface {
-	Registry(r gin.IRouter)
+	Register(r gin.IRouter)
 }

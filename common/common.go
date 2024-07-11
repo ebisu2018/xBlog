@@ -3,7 +3,7 @@ package common
 import "strconv"
 
 const (
-	API = "/api/xblog/v1"
+	API = "/api/xblog"
 )
 
 func ParseInt(n int) string {
