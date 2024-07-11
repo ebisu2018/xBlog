@@ -2,19 +2,32 @@ package impl
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ebisu2018/xBlog/apps/user"
 	"github.com/ebisu2018/xBlog/common"
 	"github.com/ebisu2018/xBlog/config"
 	"github.com/ebisu2018/xBlog/exception"
+	"github.com/ebisu2018/xBlog/ioc"
 	"gorm.io/gorm"
 )
 
+func init() {
+	fmt.Println("loading user package")
+	ioc.Container().Registry(&UserServiceImpl{})
+}
+
+func (i *UserServiceImpl) Init() {
+	i.cfg = config.ReadConfig()
+}
+
+func (i *UserServiceImpl) Name() string {
+	return user.AppName
+}
 
 var (
 	_ user.UserService = &UserServiceImpl{}
 )
-
 
 func NewUserServiceImpl() *UserServiceImpl {
 	return &UserServiceImpl{
@@ -22,13 +35,11 @@ func NewUserServiceImpl() *UserServiceImpl {
 	}
 }
 
-
 type UserServiceImpl struct {
 	cfg *config.Config
 }
 
-
-func (i *UserServiceImpl)CreateUser(ctx context.Context, req *user.CreateUserRequest) (*user.User, error)  {
+func (i *UserServiceImpl) CreateUser(ctx context.Context, req *user.CreateUserRequest) (*user.User, error) {
 	if err := req.ValidateAccount(); err != nil {
 		return nil, err
 	}
@@ -41,8 +52,7 @@ func (i *UserServiceImpl)CreateUser(ctx context.Context, req *user.CreateUserReq
 	return ins, nil
 }
 
-
-func (i *UserServiceImpl)DeleteUser(ctx context.Context, req *user.DeleteUserRequest) error {
+func (i *UserServiceImpl) DeleteUser(ctx context.Context, req *user.DeleteUserRequest) error {
 
 	ins, err := i.QueryUser(ctx, user.NewQueryRequestId(common.ParseInt(req.Id)))
 	if err != nil {
@@ -53,8 +63,7 @@ func (i *UserServiceImpl)DeleteUser(ctx context.Context, req *user.DeleteUserReq
 	return i.cfg.MySql.GetConn().WithContext(ctx).Where("id = ?", req.Id).Delete(ins).Error
 }
 
-
-func (i *UserServiceImpl)QueryUser(ctx context.Context, req *user.QueryRequest) (*user.User, error)  {
+func (i *UserServiceImpl) QueryUser(ctx context.Context, req *user.QueryRequest) (*user.User, error) {
 	query := i.cfg.MySql.GetConn().WithContext(ctx)
 	switch req.QueryBy {
 	case user.QueryById:

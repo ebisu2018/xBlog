@@ -18,11 +18,27 @@ gin.context是结构体，封装了http的request和response
 */
 
 import (
-	"net/http"
-
 	"github.com/ebisu2018/xBlog/apps/token"
+	"github.com/ebisu2018/xBlog/common"
+	"github.com/ebisu2018/xBlog/ioc"
 	"github.com/gin-gonic/gin"
 )
+
+
+func init()  {
+	ioc.ApiHandler().Registry(&HttpApiHandler{})
+}
+
+
+func (a *HttpApiHandler) Init()  {
+	a.tkSvc = ioc.Container().Get(token.AppName).(token.TokenService)
+}
+
+
+func (a *HttpApiHandler) Name() string {
+	return token.AppName
+}
+
 
 func NewHttpApiHander(svc token.TokenService) *HttpApiHandler {
 	return &HttpApiHandler{
@@ -33,6 +49,7 @@ func NewHttpApiHander(svc token.TokenService) *HttpApiHandler {
 type HttpApiHandler struct {
 	tkSvc token.TokenService
 }
+
 
 func (a *HttpApiHandler) Register(r gin.IRouter) {
 	v1 := r.Group("v1")
@@ -48,21 +65,20 @@ func (a *HttpApiHandler) ApiLogin(c *gin.Context) {
 	err := c.BindJSON(req)
 	// fmt.Println(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		common.Failed(c, err)
 		return
 	}
 
 	// 2. 把http请求转换成controller的请求
 	tk, err := a.tkSvc.Login(c.Request.Context(), req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		common.Failed(c, err)
 		return
 	}
 
 	// 3. 返回status code结果
-	c.JSON(http.StatusOK, tk)
+	common.Success(c, tk)
 }
 
 func (a *HttpApiHandler) ApiLogout(c *gin.Context) {
-
 }

@@ -5,18 +5,22 @@ import (
 	"testing"
 
 	"github.com/ebisu2018/xBlog/apps/user"
-	"github.com/ebisu2018/xBlog/apps/user/impl"
 	"github.com/ebisu2018/xBlog/common"
 	"github.com/ebisu2018/xBlog/config"
+	"github.com/ebisu2018/xBlog/ioc"
+	_ "github.com/ebisu2018/xBlog/apps"
 )
 
 var (
-	userImpl = impl.NewUserServiceImpl()
+	// userImpl = impl.NewUserServiceImpl()
+	userImpl user.UserService
 	ctx      = context.Background()
 )
 
 func init() {
 	config.LoadFromTomlFile()
+	ioc.Container().InitObj()
+	userImpl = ioc.Container().Get(user.AppName).(user.UserService)
 }
 
 func TestCreateUser(t *testing.T) {
@@ -40,7 +44,7 @@ func TestDeleteUser(t *testing.T) {
 
 func TestQueryUserById(t *testing.T) {
 
-	req := user.NewQueryRequestId(common.ParseInt(5))
+	req := user.NewQueryRequestId(common.ParseInt(6))
 	ins, err := userImpl.QueryUser(ctx, req)
 	if err != nil {
 		t.Fatal(err)

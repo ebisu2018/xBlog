@@ -2,32 +2,45 @@ package impl
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ebisu2018/xBlog/apps/token"
 	"github.com/ebisu2018/xBlog/apps/user"
-	"github.com/ebisu2018/xBlog/apps/user/impl"
 	"github.com/ebisu2018/xBlog/config"
 	"github.com/ebisu2018/xBlog/exception"
+	"github.com/ebisu2018/xBlog/ioc"
 	"gorm.io/gorm"
 )
 
+func init() {
+	fmt.Println("loading token package")
+	ioc.Container().Registry(&TokenServiceImpl{})
+}
 
-var _ token.TokenService = NewTokenServiceImpl(impl.NewUserServiceImpl())
+// var _ token.TokenService = NewTokenServiceImpl(impl.NewUserServiceImpl())
 
+func (i *TokenServiceImpl) Init() {
+	i.cfg = config.ReadConfig()
+	i.userSvc = ioc.Container().Get(user.AppName).(user.UserService)
+}
+
+func (i *TokenServiceImpl) Name() string {
+	return token.AppName
+}
 
 func NewTokenServiceImpl(svc user.UserService) *TokenServiceImpl {
 	return &TokenServiceImpl{
-		cfg: config.ReadConfig(),
+		cfg:     config.ReadConfig(),
 		userSvc: svc,
 	}
 }
 
 type TokenServiceImpl struct {
-	cfg *config.Config
+	cfg     *config.Config
 	userSvc user.UserService
 }
 
-func (i *TokenServiceImpl)Login(ctx context.Context, req *token.LoginRequest) (*token.Token, error)  {
+func (i *TokenServiceImpl) Login(ctx context.Context, req *token.LoginRequest) (*token.Token, error) {
 
 	// 查询是否有该用户
 	u, err := i.userSvc.QueryUser(ctx, user.NewQueryRequestName(req.Username))
@@ -46,7 +59,7 @@ func (i *TokenServiceImpl)Login(ctx context.Context, req *token.LoginRequest) (*
 	tk := token.NewToken()
 	tk.UserId = u.Id
 	tk.UserName = u.UserName
-	
+
 	err = i.cfg.MySql.GetConn().WithContext(ctx).Create(tk).Error
 	if err != nil {
 		return nil, err
@@ -54,7 +67,7 @@ func (i *TokenServiceImpl)Login(ctx context.Context, req *token.LoginRequest) (*
 	return tk, nil
 }
 
-func (i *TokenServiceImpl)Validate(ctx context.Context, req *token.ValidateRequest) error  {
+func (i *TokenServiceImpl) Validate(ctx context.Context, req *token.ValidateRequest) error {
 
 	tk := token.NewToken()
 	err := i.cfg.MySql.GetConn().WithContext(ctx).Where("access_token = ?", req.AccessToken).First(tk).Error
@@ -70,6 +83,6 @@ func (i *TokenServiceImpl)Validate(ctx context.Context, req *token.ValidateReque
 	return nil
 }
 
-func (i *TokenServiceImpl)Logout(ctx context.Context, req *token.LogoutRequest) error  {
+func (i *TokenServiceImpl) Logout(ctx context.Context, req *token.LogoutRequest) error {
 	return nil
 }

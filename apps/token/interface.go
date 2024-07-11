@@ -2,6 +2,8 @@ package token
 
 import "context"
 
+const AppName = "token"
+
 type TokenService interface {
 	Login(context.Context, *LoginRequest) (*Token, error)
 	Logout(context.Context, *LogoutRequest) error
